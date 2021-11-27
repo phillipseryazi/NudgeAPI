@@ -59,5 +59,14 @@ def login_user(credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
 
 
 @router.get("/refresh")
-def refresh_token():
-    pass
+def refresh_token(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_refresh_token_required()
+
+    current_user = Authorize.get_jwt_subject()
+
+    tokens = generate_auth_tokens(current_user, Authorize=Authorize)
+
+    return {
+        "access_token": tokens["access_token"],
+        "refresh_token": tokens["refresh_token"]
+    }

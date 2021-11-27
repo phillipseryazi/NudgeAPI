@@ -1,6 +1,5 @@
 import os
 from typing import Optional
-from fastapi_jwt_auth import auth_jwt
 from pydantic import BaseModel, EmailStr
 
 
@@ -38,4 +37,6 @@ class TokenPayload(BaseModel):
 
 
 class Settings(BaseModel):
-    authjwt_secret_key = os.environ["JWT_SECRET_KEY"]
+    authjwt_secret_key: str = os.environ["JWT_SECRET_KEY"]
+    authjwt_denylist_enabled: bool = True
+    authjwt_denylist_token_checks: set = {"refresh"}
