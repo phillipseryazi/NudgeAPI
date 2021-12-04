@@ -16,6 +16,11 @@ def get_config():
     return schemas.Settings()
 
 
+@AuthJWT.token_in_denylist_loader
+def check_if_token_in_denylist():
+    pass
+
+
 @router.post("/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     db_user = controllers.get_user_by_email(db=db, email=user.email)

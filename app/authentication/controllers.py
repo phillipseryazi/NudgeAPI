@@ -25,3 +25,17 @@ def login_user(password, hashed_password):
         return None
 
     return is_valid
+
+
+def blacklist_token(token: schemas.Blacklist, db: Session):
+    blacklist_token = models.Blacklist(token=token)
+    db.add(blacklist_token)
+    db.commit()
+
+
+def check_if_token_expired():
+    pass
+
+
+def delete_token():
+    pass

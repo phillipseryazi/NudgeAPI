@@ -26,6 +26,13 @@ class UserLogin(BaseModel):
     password: str
 
 
+class Blacklist(BaseModel):
+    token: str
+
+    class Config:
+        orm_mode = True
+
+
 class AuthToken(BaseModel):
     id: int
     access_token: str

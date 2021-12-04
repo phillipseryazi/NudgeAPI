@@ -11,3 +11,9 @@ class User(Base):
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
+
+
+class Blacklist(Base):
+    __tablename__ = "tokens"
+    id = Column(Integer, primary_key=True, nullable=False)
+    token = Column(String, nullable=False, unique=True)
