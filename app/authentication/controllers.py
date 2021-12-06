@@ -8,6 +8,10 @@ def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
+def find_token_in_blacklist(db: Session, token: str):
+    return db.query(models.Blacklist).filter(models.Blacklist.token == token).first()
+
+
 def create_user(user: schemas.UserCreate, db: Session):
     hashed_password = hash_password(user.password)
     user.password = hashed_password
@@ -33,9 +37,7 @@ def blacklist_token(token: schemas.Blacklist, db: Session):
     db.commit()
 
 
-def check_if_token_expired():
-    pass
+def delete_token(token: schemas.Blacklist, db: Session):
+    db.delete(token)
+    db.commit()
 
-
-def delete_token():
-    pass

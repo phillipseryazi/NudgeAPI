@@ -39,11 +39,7 @@ class AuthToken(BaseModel):
     refresh_token: str
 
 
-class TokenPayload(BaseModel):
-    id: Optional[int] = None
-
-
 class Settings(BaseModel):
     authjwt_secret_key: str = os.environ["JWT_SECRET_KEY"]
     authjwt_denylist_enabled: bool = True
-    authjwt_denylist_token_checks: set = {"refresh"}
+    authjwt_denylist_token_checks: set = {"refresh", "access"}
