@@ -10,7 +10,7 @@ class Business(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
     description = Column(Text, nullable=False)
-    domain = Column(String, nullable=False)
+    domain = Column(JSON, nullable=False)
     contacts = Column(JSON, nullable=False)
     email = Column(String, nullable=False, unique=True)
     created_at = Column(TIMESTAMP(timezone=True),
