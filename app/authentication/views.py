@@ -8,7 +8,7 @@ from fastapi_jwt_auth import AuthJWT
 from . import controllers
 from utils.security import generate_access_token, generate_refresh_token
 
-router = APIRouter(tags=["users", "authentication"])
+auth_router = APIRouter(prefix="/auth", tags=["users", "authentication"])
 
 
 @AuthJWT.load_config
@@ -26,7 +26,7 @@ def check_if_token_in_denylist(token):
         return False
 
 
-@router.post("/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
+@auth_router.post("/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     db_user = controllers.get_user_by_email(db=db, email=user.email)
 
@@ -46,7 +46,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), Authori
     }
 
 
-@router.post("/login", response_model=schemas.AuthToken, status_code=status.HTTP_200_OK)
+@auth_router.post("/login", response_model=schemas.AuthToken, status_code=status.HTTP_200_OK)
 def login_user(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     db_user = controllers.get_user_by_email(db=db, email=credentials.username)
 
@@ -70,7 +70,7 @@ def login_user(credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
     }
 
 
-@router.get("/refresh", status_code=status.HTTP_200_OK)
+@auth_router.get("/refresh", status_code=status.HTTP_200_OK)
 def refresh_token(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
 
