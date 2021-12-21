@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from . import schemas

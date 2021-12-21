@@ -1,4 +1,5 @@
-from typing import Dict, List
+from datetime import datetime
+from typing import Dict, List, Optional
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 
@@ -8,6 +9,7 @@ class BusinessBase(BaseModel):
 
 
 class BusinessCreate(BusinessBase):
+    user_id: Optional[int]
     name: str
     description: str
     domain: List[str]
@@ -23,8 +25,8 @@ class Business(BusinessBase):
     domain: List[str]
     contacts: List[str]
     email: EmailStr
-    created_at: TIMESTAMP
-    updated_at: TIMESTAMP
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
