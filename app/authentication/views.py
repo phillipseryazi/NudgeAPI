@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from . import schemas
@@ -8,7 +7,7 @@ from fastapi_jwt_auth import AuthJWT
 from . import controllers
 from utils.security import generate_access_token, generate_refresh_token
 
-router = APIRouter(tags=["users", "authentication"])
+auth_router = APIRouter(prefix="/auth", tags=["users", "authentication"])
 
 
 @AuthJWT.load_config
@@ -17,16 +16,17 @@ def get_config():
 
 
 @AuthJWT.token_in_denylist_loader
-def check_if_token_in_denylist(token):
-    blacklist_token = controllers.find_token_in_blacklist(
-        Depends(get_db), token=token)
-    if blacklist_token:
+def check_if_token_in_denylist(decrypted_token):
+    token = controllers.find_token_in_blacklist(
+        db=next(get_db()), token=decrypted_token["jti"])
+
+    if token:
         return True
     else:
         return False
 
 
-@router.post("/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
+@auth_router.post("/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     db_user = controllers.get_user_by_email(db=db, email=user.email)
 
@@ -46,7 +46,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), Authori
     }
 
 
-@router.post("/login", response_model=schemas.AuthToken, status_code=status.HTTP_200_OK)
+@auth_router.post("/login", response_model=schemas.AuthToken, status_code=status.HTTP_200_OK)
 def login_user(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     db_user = controllers.get_user_by_email(db=db, email=credentials.username)
 
@@ -70,7 +70,7 @@ def login_user(credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
     }
 
 
-@router.get("/refresh", status_code=status.HTTP_200_OK)
+@auth_router.get("/refresh", status_code=status.HTTP_200_OK)
 def refresh_token(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
 
@@ -81,3 +81,13 @@ def refresh_token(db: Session = Depends(get_db), Authorize: AuthJWT = Depends())
     return {
         "access_token": access_token
     }
+
+
+@auth_router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+
+    jti = Authorize.get_raw_jwt()["jti"]
+    controllers.blacklist_token(jti=jti, db=db)
+
+    return {"detail": "user logged out"}
