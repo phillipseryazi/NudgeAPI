@@ -16,10 +16,11 @@ def get_config():
 
 
 @AuthJWT.token_in_denylist_loader
-def check_if_token_in_denylist(token):
-    blacklist_token = controllers.find_token_in_blacklist(
-        Depends(get_db), token=token)
-    if blacklist_token:
+def check_if_token_in_denylist(decrypted_token):
+    token = controllers.find_token_in_blacklist(
+        db=next(get_db()), token=decrypted_token["jti"])
+
+    if token:
         return True
     else:
         return False
@@ -80,3 +81,13 @@ def refresh_token(db: Session = Depends(get_db), Authorize: AuthJWT = Depends())
     return {
         "access_token": access_token
     }
+
+
+@auth_router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+
+    jti = Authorize.get_raw_jwt()["jti"]
+    controllers.blacklist_token(jti=jti, db=db)
+
+    return {"detail": "user logged out"}

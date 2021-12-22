@@ -40,4 +40,3 @@ def blacklist_token(token: schemas.Blacklist, db: Session):
 def delete_token(token: schemas.Blacklist, db: Session):
     db.delete(token)
     db.commit()
-
