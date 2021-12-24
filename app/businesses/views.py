@@ -4,6 +4,7 @@ from . import schemas, controllers
 from storage.database import get_db
 from fastapi_jwt_auth import AuthJWT
 from typing import List
+
 business_router = APIRouter(prefix="/business", tags=["business"])
 
 
